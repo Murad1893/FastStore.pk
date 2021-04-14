@@ -1,7 +1,7 @@
 ﻿@model Khareedo.Models.Product
 <li>
     <figure>
-        <a class="aa-product-img" href="@Url.Action("ViewDetails", "Product", new { id = Model.ProductID })"><img src="@Model.ImageURL" alt="@Model.AltText"></a>
+        <a class="aa-product-img" href="@Url.Action("ViewDetails", "Product", new { id = Model.ProductID })"><img  src="@Model.ImageURL" alt="@Model.AltText" width="300px" height="300px"></a>
         <a class="aa-add-card-btn" href="@(Session["username"] != null ? Url.Action("AddToCart", "Product", new { id = @Model.ProductID}) : Url.Action("Login", "Account"))"><span class="fa fa-shopping-cart"></span>Add To Cart</a>
         <figcaption>
             <h4 class="aa-product-title"><a href="#">@Model.Name</a></h4>

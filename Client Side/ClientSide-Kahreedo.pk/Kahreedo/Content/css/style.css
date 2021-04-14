@@ -810,7 +810,8 @@ img {
 #aa-slider .aa-slider-area {
   display: inline;
   float: left;
-  width: 100%;
+  width: 80%;
+  margin-left:10%;
 }
 #aa-slider .aa-slider-area .seq-title {
   left: 19%;
@@ -969,14 +970,17 @@ img {
   -o-transition: all 0.5s;
   transition: all 0.5s;
 }
+
+
+
 #aa-promo .aa-promo-area .aa-promo-banner .aa-prom-content {
-  position: absolute;
-  left: 0;
-  top: 35%;
-  right: 0;
-  width: 100%;
-  text-align: center;
-  z-index: 99;
+    position: absolute;
+    left: 0;
+    top: 35%;
+    right: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 99;
 }
 #aa-promo .aa-promo-area .aa-promo-banner .aa-prom-content span {
   background-color: #FFF;
