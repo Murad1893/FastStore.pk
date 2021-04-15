@@ -810,7 +810,8 @@ img {
 #aa-slider .aa-slider-area {
   display: inline;
   float: left;
-  width: 100%;
+  width: 80%;
+  margin-left:10%;
 }
 #aa-slider .aa-slider-area .seq-title {
   left: 19%;
