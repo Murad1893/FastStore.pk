@@ -3,23 +3,26 @@
 
 <!-- Start slider -->
 <section id="aa-slider">
+    <br />
     <div class="aa-slider-area">
         <div id="sequence" class="seq">
-            <div class="seq-screen">
+            <div class="seq-screen" >
+                
                 <ul class="seq-canvas">
 
                     <!-- single slide item -->
                     @foreach (var item in @ViewBag.Slider)
                     {
         <li>
-            <div class="seq-model">
+            <div class="seq-model" >
+
                 <img data-seq src="@item.ImageURL" alt="@item.AltText" />
             </div>
             <div class="seq-title">
-                <span data-seq>@item.OfferTag</span>
+                @*<span data-seq>@item.OfferTag</span>
                 <h2 data-seq>@item.Title</h2>
                 <p data-seq>@item.Description</p>
-                <a data-seq href="#" class="aa-shop-now-btn aa-secondary-btn">@item.BtnText</a>
+                <a data-seq href="#" class="aa-shop-now-btn aa-secondary-btn">@item.BtnText</a>*@
             </div>
         </li>}
                     <!-- end single slide item -->
