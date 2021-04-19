@@ -13,7 +13,9 @@ namespace FastStoreWebAPI.Controllers
     public class AccountController : ApiController
     {
         // GET All Customers: account/
-        public IEnumerable<Customer> Get()
+        [Route("~/api/customers")]
+        [HttpGet]
+        public IEnumerable<Customer> GetCustomerList()
         {
             using (EcommerceEntities entities = new EcommerceEntities())
             {
@@ -22,7 +24,9 @@ namespace FastStoreWebAPI.Controllers
         }
 
         // GET Specific Customer: account/:id 
-        public HttpResponseMessage Get(int id) {
+        [Route("~/api/customers/{id:int}")]
+        [HttpGet]
+        public HttpResponseMessage GetCustomerById(int id) {
             using (EcommerceEntities entities = new EcommerceEntities()) {
                 var entity = entities.Customers.FirstOrDefault(e => e.CustomerID == id);
 
@@ -38,7 +42,9 @@ namespace FastStoreWebAPI.Controllers
         }
 
         // GET Specific Customer: account/:username 
-        public HttpResponseMessage Get(string username)
+        [Route("~/api/customers/{username}")]
+        [HttpGet]
+        public HttpResponseMessage GetCustomerbyUsername(string username)
         {
             using (EcommerceEntities entities = new EcommerceEntities())
             {
@@ -56,7 +62,9 @@ namespace FastStoreWebAPI.Controllers
         }
 
         // POST Customer: account/
-        public HttpResponseMessage Post([FromBody] Customer customer) {
+        [Route("~/api/customers")]
+        [HttpPost]
+        public HttpResponseMessage RegisterCustomer([FromBody] Customer customer) {
             //DBCC CHECKIDENT("[Kahreedo].[dbo].[Customers]", RESEED, 12)
             try
             {
@@ -82,8 +90,10 @@ namespace FastStoreWebAPI.Controllers
             }
         }
 
-        // Patching customer details : account/?id
-        public HttpResponseMessage Put(int id, [FromBody] Customer customer) {
+        // Updating customer details : account/?id
+        [Route("~/api/customers/{id:int}")]
+        [HttpPut]
+        public HttpResponseMessage UpdateCustomer(int id, [FromBody] Customer customer) {
             using (EcommerceEntities entities = new EcommerceEntities())
             {
                 try
