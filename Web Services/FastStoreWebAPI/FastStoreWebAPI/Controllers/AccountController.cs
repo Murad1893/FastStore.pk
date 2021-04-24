@@ -24,7 +24,7 @@ namespace FastStoreWebAPI.Controllers
         }
 
         // GET Specific Customer: account/:id 
-        [Route("~/api/customers/{id:int}")]
+        [Route("~/api/customers")]
         [HttpGet]
         public HttpResponseMessage GetCustomerById(int id) {
             using (EcommerceEntities entities = new EcommerceEntities()) {
@@ -42,7 +42,7 @@ namespace FastStoreWebAPI.Controllers
         }
 
         // GET Specific Customer: account/:username 
-        [Route("~/api/customers/{username}")]
+        [Route("~/api/customers")]
         [HttpGet]
         public HttpResponseMessage GetCustomerbyUsername(string username)
         {
@@ -91,7 +91,7 @@ namespace FastStoreWebAPI.Controllers
         }
 
         // Updating customer details : account/?id
-        [Route("~/api/customers/{id:int}")]
+        [Route("~/api/customers")]
         [HttpPut]
         public HttpResponseMessage UpdateCustomer(int id, [FromBody] Customer customer) {
             using (EcommerceEntities entities = new EcommerceEntities())

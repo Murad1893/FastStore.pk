@@ -41,7 +41,6 @@ namespace FastStoreWebAPI.Controllers
             }
         }
 
-        [Route("{id:int}")]
         [HttpGet]
         public HttpResponseMessage GetProductById(int id) {
             using (EcommerceEntities entities = new EcommerceEntities())
@@ -58,7 +57,7 @@ namespace FastStoreWebAPI.Controllers
             }
         }
 
-        [Route("category/{category}")]
+        [Route("category")]
         [HttpGet]
         public IEnumerable<Product> GetProductByCategory(string category)
         {
@@ -68,7 +67,7 @@ namespace FastStoreWebAPI.Controllers
             }
         }
 
-        [Route("subcategory/{subcategoryId:int}")]
+        [Route("subcategory")]
         [HttpGet]
         public IEnumerable<Product> GetProductBySubCategory(int subcategoryId)
         {
@@ -78,7 +77,7 @@ namespace FastStoreWebAPI.Controllers
             }
         }
 
-        [Route("details/{id:int}")]
+        [Route("details")]
         [HttpGet]
         public HttpResponseMessage GetProductDetails(int id) {
             using (EcommerceEntities entities = new EcommerceEntities())
@@ -119,36 +118,7 @@ namespace FastStoreWebAPI.Controllers
             }
         }
 
-        [Route("wishlist")]
-        [HttpPost]
-        public HttpResponseMessage AddToWishList([FromBody] Wishlist w)
-        {
-            try
-            {
-                using (EcommerceEntities entities = new EcommerceEntities())
-                {
-                    entities.Wishlists.Add(w);
-                    entities.SaveChanges();
-
-                    return Request.CreateResponse(HttpStatusCode.OK, "Item added to wishlist");
-                }
-            }
-            catch (Exception e) {
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, e);
-            }
-        }
-
-        [Route("wishlist/{id:int}")]
-        [HttpGet]
-        public IEnumerable<Wishlist> GetWishList(int id)
-        {
-            using (EcommerceEntities entities = new EcommerceEntities())
-            {
-                return entities.Wishlists.Where(x => x.CustomerID == id).ToList();
-            }
-        }
-
-        [Route("search/{name}")]
+        [Route("search")]
         [HttpGet]
         public IEnumerable<String> GetProductNames(string name) {
             using (EcommerceEntities entities = new EcommerceEntities())
