@@ -136,5 +136,13 @@ namespace FastStoreWebAPI.Controllers
             }
         }
 
+        [Route("~/api/genMainSliders")]
+        [HttpGet]
+        public IEnumerable<genMainSlider> GetSlider() {
+            using (EcommerceEntities entities = new EcommerceEntities())
+            {
+                return entities.genMainSliders.ToList();
+            }
+        }
     }
 }
