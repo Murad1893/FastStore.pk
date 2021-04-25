@@ -181,11 +181,11 @@
                             <li><a href="@Url.Action("Index","Home")">Home</a></li>
                             @{
 
-                                Khareedo.Models.KhareedoEntities db = new Khareedo.Models.KhareedoEntities();
+                                FastStore.Models.KhareedoEntities db = new FastStore.Models.KhareedoEntities();
                                 Dictionary<string, IEnumerable<string>> navbar = new Dictionary<string, IEnumerable<string>>();
 
-                                List<Khareedo.Models.Category> Categories = db.Categories.ToList();
-                                foreach (Khareedo.Models.Category cat in Categories)
+                                List<FastStore.Models.Category> Categories = db.Categories.ToList();
+                                foreach (FastStore.Models.Category cat in Categories)
                                 {
                                     IEnumerable<string> subCat = db.SubCategories.Where(x => x.CategoryID == cat.CategoryID).Select(x => x.Name).ToList();
                                     navbar.Add(cat.Name, subCat);

@@ -1,4 +1,4 @@
-﻿@model Khareedo.Models.Product
+﻿@model FastStore.Models.Product
 
 @{
     ViewBag.Title = "View Details";
@@ -215,7 +215,7 @@
                             <!-- start single product item -->
 
                             <!-- start single product item -->
-                            @foreach (var item in (List<Khareedo.Models.Product>)@ViewBag.RelatedProducts)
+                            @foreach (var item in (List<FastStore.Models.Product>)@ViewBag.RelatedProducts)
                                     {
                                         { Html.RenderPartial("_Product", item); }
                                     }

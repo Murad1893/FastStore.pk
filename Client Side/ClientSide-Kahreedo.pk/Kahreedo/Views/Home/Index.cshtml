@@ -103,7 +103,7 @@
                                 <div class="tab-pane fade in active" id="men">
                                     <ul class="aa-product-catg">
                                         <!-- start single product item -->
-                                        @foreach (var item in (List<Khareedo.Models.Product>)@ViewBag.MenProduct)
+                                        @foreach (var item in (List<FastStore.Models.Product>)@ViewBag.MenProduct)
                                         {
                                             { Html.RenderPartial("_Product", item); }
                                         }
@@ -117,7 +117,7 @@
                                 <div class="tab-pane fade" id="women">
                                     <ul class="aa-product-catg">
                                         <!-- start single product item -->
-                                        @foreach (var item in (List<Khareedo.Models.Product>)@ViewBag.WomenProduct)
+                                        @foreach (var item in (List<FastStore.Models.Product>)@ViewBag.WomenProduct)
                                         {
                                             { Html.RenderPartial("_Product", item); }
                                         }
@@ -131,7 +131,7 @@
                                 <div class="tab-pane fade" id="sports">
                                     <ul class="aa-product-catg">
                                         <!-- start single product item -->
-                                        @foreach (var item in (List<Khareedo.Models.Product>)@ViewBag.SportsProduct)
+                                        @foreach (var item in (List<FastStore.Models.Product>)@ViewBag.SportsProduct)
                                         {
                                             { Html.RenderPartial("_Product", item); }
                                         }
@@ -146,7 +146,7 @@
                                 <div class="tab-pane fade" id="electronics">
                                     <ul class="aa-product-catg">
                                         <!-- start single product item -->
-                                        @foreach (var item in (List<Khareedo.Models.Product>)@ViewBag.ElectronicsProduct)
+                                        @foreach (var item in (List<FastStore.Models.Product>)@ViewBag.ElectronicsProduct)
                                         {
                                             { Html.RenderPartial("_Product", item); }
                                         }
@@ -280,7 +280,7 @@
                             <!--<div class="tab-pane fade in active" id="popular">
                                 <ul class="aa-product-catg aa-popular-slider">-->
                                     <!-- start single product item -->
-                                    <!--@foreach (var item in (List<Khareedo.Models.Product>)@ViewBag.MenProduct)
+                                    <!--@foreach (var item in (List<FastStore.Models.Product>)@ViewBag.MenProduct)
                                     {
                                         { Html.RenderPartial("_Product", item); }
                                     }-->
@@ -294,7 +294,7 @@
                             <!--<div class="tab-pane fade" id="featured">
                                 <ul class="aa-product-catg aa-featured-slider">-->
                                     <!-- start single product item -->
-                                    <!--@foreach (var item in (List<Khareedo.Models.Product>)@ViewBag.SportsProduct)
+                                    <!--@foreach (var item in (List<FastStore.Models.Product>)@ViewBag.SportsProduct)
                                     {
                                         { Html.RenderPartial("_Product", item); }
                                     }-->
@@ -308,7 +308,7 @@
                             <!--<div class="tab-pane fade" id="latest">
                                 <ul class="aa-product-catg aa-latest-slider">-->
                                     <!-- start single product item -->
-                                    <!--@foreach (var item in (List<Khareedo.Models.Product>)@ViewBag.ElectronicsProduct)
+                                    <!--@foreach (var item in (List<FastStore.Models.Product>)@ViewBag.ElectronicsProduct)
                                     {
                                         { Html.RenderPartial("_Product", item); }
                                     }-->

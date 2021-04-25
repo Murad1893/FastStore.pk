@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31129.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Khareedo", "Kahreedo\Khareedo.csproj", "{27EA9351-4365-4D3F-BF48-260314FEF665}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastStore", "Kahreedo\FastStore.csproj", "{27EA9351-4365-4D3F-BF48-260314FEF665}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +18,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CDC2C009-8BAE-413A-AA2A-DDB343A05479}
 	EndGlobalSection
 EndGlobal

@@ -1,7 +1,7 @@
 ﻿@using PagedList;
 @using PagedList.Mvc;
 
-@model IPagedList<Khareedo.Models.Product>
+@model IPagedList<FastStore.Models.Product>
 @{
     ViewBag.Title = "Products";
 }
@@ -200,7 +200,7 @@
                         <h3>Top Sold Products</h3>
                         <div class="aa-recently-views">
                             <ul>
-                                @foreach (Khareedo.Models.TopSoldProduct item in ViewBag.TopRatedProducts)
+                                @foreach (FastStore.Models.TopSoldProduct item in ViewBag.TopRatedProducts)
                                 {                                   
                                 
                                 <li>
@@ -219,7 +219,7 @@
                         @*<h3>Recently Views</h3>
                         <div class="aa-recently-views">
                             <ul>
-                               @foreach (Khareedo.Models.Product item in ViewBag.RecentViewsProducts)
+                               @foreach (FastStore.Models.Product item in ViewBag.RecentViewsProducts)
                                 {
                                 <li>
                                     <a href="@Url.Action("ViewDetails", "Product", new { id = item.ProductID })" class="aa-cartbox-img"><img alt="@item.AltText" src="@item.ImageURL"></a>

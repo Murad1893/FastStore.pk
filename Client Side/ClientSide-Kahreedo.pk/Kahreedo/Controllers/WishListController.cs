@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using Khareedo.Models;
+using FastStore.Models;
 
-namespace Khareedo.Controllers
+namespace FastStore.Controllers
 {
     public class WishListController : Controller
     {

@@ -1,4 +1,4 @@
-﻿using Khareedo.Models;
+﻿using FastStore.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.Web;
 using System.Web.Mvc;
 
 
-namespace Khareedo.Controllers
+namespace FastStore.Controllers
 {
     public class HomeController : Controller
     {

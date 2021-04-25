@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Khareedo.Models
+namespace FastStore.Models
 {
     using System;
     using System.Collections.Generic;
