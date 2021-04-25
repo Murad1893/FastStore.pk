@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -18,15 +19,46 @@ namespace Khareedo.Controllers
         // GET: Home
         public async Task<ActionResult> Index()
         {
+            var builder = new UriBuilder(ConfigurationManager.AppSettings["url"]);
+
             using (var client = new HttpClient())
             {
-                ViewBag.MenProduct = db.Products.Where(x => x.Category.Name.Equals("Men")).ToList();
-                ViewBag.WomenProduct = db.Products.Where(x => x.Category.Name.Equals("Women")).ToList();
-                ViewBag.SportsProduct = db.Products.Where(x => x.Category.Name.Equals("Sports")).ToList();
-                ViewBag.ElectronicsProduct = db.Products.Where(x => x.Category.Name.Equals("Phones")).ToList();
 
-                var response = await client.GetAsync("http://localhost:2509/api/genMainSliders");
+                builder.Path = "/api/product/category";
+                var query = HttpUtility.ParseQueryString(builder.Query);
+                query["categoryName"] = "Men";
+                builder.Query = query.ToString();
+                var response = await client.GetAsync(builder.Uri);
                 string content = await response.Content.ReadAsStringAsync();
+                ViewBag.MenProduct = JsonConvert.DeserializeObject<IEnumerable<Product>>(content);
+
+                builder.Path = "/api/product/category";
+                query = HttpUtility.ParseQueryString(builder.Query);
+                query["categoryName"] = "Women";
+                builder.Query = query.ToString();
+                response = await client.GetAsync(builder.Uri);
+                content = await response.Content.ReadAsStringAsync();
+                ViewBag.WomenProduct = JsonConvert.DeserializeObject<IEnumerable<Product>>(content);
+
+                builder.Path = "/api/product/category";
+                query = HttpUtility.ParseQueryString(builder.Query);
+                query["categoryName"] = "Sports";
+                builder.Query = query.ToString();
+                response = await client.GetAsync(builder.Uri);
+                content = await response.Content.ReadAsStringAsync();
+                ViewBag.SportsProduct = JsonConvert.DeserializeObject<IEnumerable<Product>>(content);
+
+                builder.Path = "/api/product/category";
+                query = HttpUtility.ParseQueryString(builder.Query);
+                query["categoryName"] = "Phones";
+                builder.Query = query.ToString();
+                response = await client.GetAsync(builder.Uri);
+                content = await response.Content.ReadAsStringAsync();
+                ViewBag.ElectronicsProduct = JsonConvert.DeserializeObject<IEnumerable<Product>>(content);
+
+                builder.Path = "/api/genMainSliders";
+                response = await client.GetAsync(builder.Uri);
+                content = await response.Content.ReadAsStringAsync();
                 ViewBag.Slider = JsonConvert.DeserializeObject<IEnumerable<genMainSlider>>(content);
                 
                 ViewBag.PromoRight = db.genPromoRights.ToList();

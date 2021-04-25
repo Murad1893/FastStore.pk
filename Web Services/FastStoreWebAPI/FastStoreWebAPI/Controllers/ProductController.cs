@@ -59,11 +59,11 @@ namespace FastStoreWebAPI.Controllers
 
         [Route("category")]
         [HttpGet]
-        public IEnumerable<Product> GetProductByCategory(string category)
+        public IEnumerable<Product> GetProductByCategory(string categoryName)
         {
             using (EcommerceEntities entities = new EcommerceEntities())
             {
-                return entities.Products.Where(x => x.Category.Name == category).ToList();
+                return entities.Products.Where(x => x.Category.Name == categoryName).ToList();
             }
         }
 
