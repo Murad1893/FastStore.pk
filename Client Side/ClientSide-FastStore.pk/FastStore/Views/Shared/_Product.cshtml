@@ -1,0 +1,69 @@
+﻿@model FastStore.Models.Product
+<li>
+
+    <div class="container" >
+        <div class="row">
+            <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+                <div class="card" style="border:solid thin #3FC35F; padding: 0; margin:0; width: 230px; height: 380px;">
+                    <a class="aa-product-img" href="@Url.Action("ViewDetails", "Product", new { id = Model.ProductID })"><img src="@Model.ImageURL" alt="@Model.AltText" width="230px" height="230px"></a>
+                    <div class="card-img-overlay d-flex justify-content-end">
+                        <a href="@(Session["username"]!=null ? Url.Action("WishList","Product", new {id=@Model.ProductID }) :Url.Action("Login","Account"))" class="card-link text-danger like">
+                            <i class="fa fa-heart"></i> 
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title">@Model.Name</h4>
+                        <h6 class="card-subtitle mb-2 text-muted">Style: VA33TXRJ5</h6>
+                        <p class="card-text">
+                            
+                        </p>
+                       
+                        <div class="buy d-flex justify-content-between align-items-center">
+                            <div class="price text-success">
+                                <span class="aa-product-price">Rs. @Model.UnitPrice</span><span class="aa-product-old-price">
+                                    <del>
+                                        @if (Model.OldPrice != null)
+                                        {
+                                            <text>Rs. @Model.OldPrice</text>
+                                        }
+                                    </del>
+                                </span>
+                            </div>
+                            <a href="@(Session["username"] != null ? Url.Action("AddToCart", "Product", new { id = @Model.ProductID}) : Url.Action("Login", "Account"))" class="btn btn-danger mt-3"><i class="fa fa-shopping-cart"></i> Add to Cart</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*<figure>
+            <a class="aa-product-img" href="@Url.Action("ViewDetails", "Product", new { id = Model.ProductID })"><img  src="@Model.ImageURL" alt="@Model.AltText" width="300px" height="300px"></a>
+            <a class="aa-add-card-btn" href="@(Session["username"] != null ? Url.Action("AddToCart", "Product", new { id = @Model.ProductID}) : Url.Action("Login", "Account"))"><span class="fa fa-shopping-cart"></span>Add To Cart</a>
+            <figcaption>
+                <h4 class="aa-product-title"><a href="#">@Model.Name</a></h4>
+                <span class="aa-product-price">Rs. @Model.UnitPrice</span><span class="aa-product-old-price">
+                    <del>
+                    @if(Model.OldPrice!=null)
+                    {
+                         <text>Rs. @Model.OldPrice</text>
+                    }
+                    </del>
+                </span>
+            </figcaption>
+        </figure>
+        <div class="aa-product-hvr-content">
+            <a href="@(Session["username"]!=null ? Url.Action("WishList","Product", new {id=@Model.ProductID }) :Url.Action("Login","Account"))" data-toggle="tooltip" data-placement="top" title="Add to Wishlist"><span class="fa fa-heart-o"></span></a>
+            <a href="@Url.Action("ViewDetails", "Product", new { id = Model.ProductID })" title="View Details" data-toggle="tooltip" data-placement="top"><span class="fa fa-info"></span></a>
+
+
+        </div>
+        @if (Model.AddBadge == true)
+        {
+             <span class="aa-badge  @Model.OfferBadgeClass" href="#">@Model.OfferTitle</span>
+        }
+        @{
+            TempData["returnURL"] = Request.RawUrl;
+            }*@
+
+</li>
+

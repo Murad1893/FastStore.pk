@@ -65,7 +65,6 @@ namespace FastStoreWebAPI.Controllers
         [Route("~/api/customers")]
         [HttpPost]
         public HttpResponseMessage RegisterCustomer([FromBody] Customer customer) {
-            //DBCC CHECKIDENT("[Kahreedo].[dbo].[Customers]", RESEED, 12)
             try
             {
                 using (EcommerceEntities entities = new EcommerceEntities())
