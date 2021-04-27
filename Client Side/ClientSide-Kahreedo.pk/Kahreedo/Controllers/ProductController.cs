@@ -6,52 +6,53 @@ using System.Web.Mvc;
 using FastStore.Models;
 using PagedList;
 using PagedList.Mvc;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Configuration;
+using Newtonsoft.Json;
 
 namespace FastStore.Controllers
 {
   public class ProductController : Controller
   {
+    UriBuilder builder = new UriBuilder(ConfigurationManager.AppSettings["url"]);
     KhareedoEntities db = new KhareedoEntities();
 
-
-    public ActionResult Index()
+    public async Task<ActionResult> Index()
     {
-      ViewBag.Categories = db.Categories.Select(x => x.Name).ToList();
-
-      ViewBag.TopRatedProducts = TopSoldProducts();
-      ViewBag.RecentViewsProducts = RecentViewProducts();
-
-      return View("Products");
-    }
-
-    //TOP SOLD PRODUCTS
-    public List<TopSoldProduct> TopSoldProducts()
-    {
-      var prodList = (from prod in db.OrderDetails
-                      select new { prod.ProductID, prod.Quantity } into p
-                      group p by p.ProductID into g
-                      select new
-                      {
-                        pID = g.Key,
-                        sold = g.Sum(x => x.Quantity)
-                      }).OrderByDescending(y => y.sold).Take(3).ToList();
-
-
-
-      List<TopSoldProduct> topSoldProds = new List<TopSoldProduct>();
-
-      for (int i = 0; i < 3; i++)
-      {
-        topSoldProds.Add(new TopSoldProduct()
+        using (var client = new HttpClient())
         {
-          product = db.Products.Find(prodList[i].pID),
-          CountSold = Convert.ToInt32(prodList[i].sold)
-        });
-      }
-      return topSoldProds;
+            builder.Path = "/api/product/categories";
+            var response = await client.GetAsync(builder.Uri);
+            string content = await response.Content.ReadAsStringAsync();
+            ViewBag.Categories = JsonConvert.DeserializeObject<IEnumerable<String>>(content);
+
+            builder.Path = "/api/product/soldCount";
+            response = await client.GetAsync(builder.Uri);
+            content = await response.Content.ReadAsStringAsync();
+
+            ViewBag.TopRatedProducts = JsonConvert.DeserializeObject<List<TopSoldProduct>>(content);
+
+            ViewBag.RecentViewsProducts = RecentViewProducts();
+
+            return View("Products");
+        }        
     }
-    //RECENT VIEWS PRODUCTS
-    public IEnumerable<Product> RecentViewProducts()
+
+        //TOP SOLD PRODUCTS
+        //public async Task<List<TopSoldProduct>> TopSoldProducts()
+        //{
+        //    using (var client = new HttpClient())
+        //    {
+        //        builder.Path = "/api/product/soldCount";
+        //        var response = await client.GetAsync(builder.Uri);
+        //        string content = await response.Content.ReadAsStringAsync();
+        //        return JsonConvert.DeserializeObject<List<TopSoldProduct>>(content);
+        //    }
+        //}
+
+        //RECENT VIEWS PRODUCTS
+        public IEnumerable<Product> RecentViewProducts()
     {
       if (TempShpData.UserID > 0)
       {
@@ -173,22 +174,30 @@ namespace FastStore.Controllers
     }
 
     //GET PRODUCTS BY CATEGORY
-    public ActionResult GetProductsByCategory(string categoryName, int? page)
+    public async Task<ActionResult> GetProductsByCategory(string categoryName, int? page)
     {
-      ViewBag.Categories = db.Categories.Select(x => x.Name).ToList();
-      ViewBag.TopRatedProducts = TopSoldProducts();
+        using (var client = new HttpClient())
+        {
+            ViewBag.Categories = db.Categories.Select(x => x.Name).ToList();
 
-      ViewBag.RecentViewsProducts = RecentViewProducts();
+            // made changes here
+            builder.Path = "/api/product/soldCount";
+            var response = await client.GetAsync(builder.Uri);
+            string content = await response.Content.ReadAsStringAsync();
+            ViewBag.TopRatedProducts = JsonConvert.DeserializeObject<List<TopSoldProduct>>(content);
 
-      var prods = db.Products.Where(x => x.Category.Name == categoryName).ToList();
-      return View("Products", prods.ToPagedList(page ?? 1, 9));
+            ViewBag.RecentViewsProducts = RecentViewProducts();
+
+            var prods = db.Products.Where(x => x.Category.Name == categoryName).ToList();
+            return View("Products", prods.ToPagedList(page ?? 1, 9));
+        }
     }
 
     //SEARCH BAR
     public ActionResult Search(string product, int? page)
     {
       ViewBag.Categories = db.Categories.Select(x => x.Name).ToList();
-      ViewBag.TopRatedProducts = TopSoldProducts();
+      //ViewBag.TopRatedProducts = TopSoldProducts();
 
       ViewBag.RecentViewsProducts = RecentViewProducts();
 
@@ -213,7 +222,7 @@ namespace FastStore.Controllers
     public ActionResult FilterByPrice(int minPrice, int maxPrice, int? page)
     {
       ViewBag.Categories = db.Categories.Select(x => x.Name).ToList();
-      ViewBag.TopRatedProducts = TopSoldProducts();
+      //ViewBag.TopRatedProducts = TopSoldProducts();
 
       ViewBag.RecentViewsProducts = RecentViewProducts();
       ViewBag.filterByPrice = true;

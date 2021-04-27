@@ -218,6 +218,7 @@
     <Compile Include="Models\Product.cs">
       <DependentUpon>FastStoreModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\TopSoldProduct.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\RecentlyView.cs">
       <DependentUpon>FastStoreModel.tt</DependentUpon>

@@ -25,7 +25,7 @@ namespace FastStoreWebAPI.Controllers
 
         [Route("soldCount")]
         [HttpGet]
-        public HttpResponseMessage GetTopProductList() {
+        public IEnumerable<TopSoldProduct> GetTopProductList() {
             using (EcommerceEntities entities = new EcommerceEntities())
             {
                 var prodList = (from prod in entities.OrderDetails
@@ -37,7 +37,17 @@ namespace FastStoreWebAPI.Controllers
                                     sold = g.Sum(x => x.Quantity)
                                 }).OrderByDescending(y => y.sold).Take(3).ToList();
 
-                return Request.CreateResponse(HttpStatusCode.OK, prodList);
+                List<TopSoldProduct> topSoldProds = new List<TopSoldProduct>();
+                for (int i = 0; i < 3; i++)
+                {
+                    topSoldProds.Add(new TopSoldProduct()
+                    {
+                        product = entities.Products.Find(prodList[i].pID),
+                        CountSold = Convert.ToInt32(prodList[i].sold)
+                    });
+                }
+
+                return topSoldProds;
             }
         }
 

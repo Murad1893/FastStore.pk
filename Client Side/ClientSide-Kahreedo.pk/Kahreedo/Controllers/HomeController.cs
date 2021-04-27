@@ -14,16 +14,14 @@ namespace FastStore.Controllers
 {
     public class HomeController : Controller
     {
+        UriBuilder builder = new UriBuilder(ConfigurationManager.AppSettings["url"]);
         KhareedoEntities db = new KhareedoEntities();
 
         // GET: Home
         public async Task<ActionResult> Index()
         {
-            var builder = new UriBuilder(ConfigurationManager.AppSettings["url"]);
-
             using (var client = new HttpClient())
             {
-
                 builder.Path = "/api/product/category";
                 var query = HttpUtility.ParseQueryString(builder.Query);
                 query["categoryName"] = "Men";
