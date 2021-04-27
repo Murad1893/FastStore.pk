@@ -8,7 +8,7 @@
     <WebStackScaffolding_LayoutPageFile />
     <WebStackScaffolding_ControllerDialogWidth>600</WebStackScaffolding_ControllerDialogWidth>
     <WebStackScaffolding_IsAsyncSelected>False</WebStackScaffolding_IsAsyncSelected>
-    <WebStackScaffolding_DbContextTypeFullName>IMS_Project.Models.KahreedoEntities</WebStackScaffolding_DbContextTypeFullName>
+    <WebStackScaffolding_DbContextTypeFullName>FastStore.Models.FastStoreEntities</WebStackScaffolding_DbContextTypeFullName>
     <ProjectView>ProjectFiles</ProjectView>
     <NameOfLastUsedPublishProfile>IMS-Project1 - Web Deploy</NameOfLastUsedPublishProfile>
     <LastActiveSolutionConfig>Debug|Any CPU</LastActiveSolutionConfig>
