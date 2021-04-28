@@ -52,6 +52,15 @@ namespace FastStoreWebAPI.Controllers
         }
 
         [HttpGet]
+        public IEnumerable<Product> GetAllProducts()
+        {
+            using (EcommerceEntities entities = new EcommerceEntities())
+            {
+                return entities.Products.ToList();
+            }
+        }
+
+        [HttpGet]
         public HttpResponseMessage GetProductById(int id) {
             using (EcommerceEntities entities = new EcommerceEntities())
             {
@@ -98,8 +107,11 @@ namespace FastStoreWebAPI.Controllers
                 {
                     var reviews = entities.Reviews.Where(x => x.ProductID == id).ToList();
                     var relatedProducts = entities.Products.Where(y => y.CategoryID == prod.CategoryID).ToList();
+                    relatedProducts.Remove(prod);
+
                     data.Add(prod);
                     data.Add(relatedProducts);
+
                     return Request.CreateResponse(HttpStatusCode.OK, data);
                 }
                 else
@@ -130,10 +142,20 @@ namespace FastStoreWebAPI.Controllers
 
         [Route("search")]
         [HttpGet]
-        public IEnumerable<String> GetProductNames(string name) {
+        public IEnumerable<Product> GetProductByNames(string name) {
             using (EcommerceEntities entities = new EcommerceEntities())
             {
-                return entities.Products.Where(x => x.Name.StartsWith(name)).Select(y => y.Name).ToList();
+                return entities.Products.Where(x => x.Name.StartsWith(name)).ToList();
+            }
+        }
+
+        [Route("search")]
+        [HttpGet]
+        public IEnumerable<String> GetProductNames(string prefix)
+        {
+            using (EcommerceEntities entities = new EcommerceEntities())
+            {
+                return entities.Products.Where(x => x.Name.StartsWith(prefix)).Select(y => y.Name).ToList();
             }
         }
 

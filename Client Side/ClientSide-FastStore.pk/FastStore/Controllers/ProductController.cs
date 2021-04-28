@@ -10,46 +10,55 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Configuration;
 using Newtonsoft.Json;
+using System.Collections;
+using Newtonsoft.Json.Linq;
+using System.Text;
 
 namespace FastStore.Controllers
 {
   public class ProductController : Controller
   {
-    UriBuilder builder = new UriBuilder(ConfigurationManager.AppSettings["url"]);
+        UriBuilder builder = new UriBuilder(ConfigurationManager.AppSettings["url"]);
         FastStoreEntities db = new FastStoreEntities();
 
     public async Task<ActionResult> Index()
     {
         using (var client = new HttpClient())
         {
-            builder.Path = "/api/product/categories";
-            var response = await client.GetAsync(builder.Uri);
-            string content = await response.Content.ReadAsStringAsync();
-            ViewBag.Categories = JsonConvert.DeserializeObject<IEnumerable<String>>(content);
 
-            builder.Path = "/api/product/soldCount";
-            response = await client.GetAsync(builder.Uri);
-            content = await response.Content.ReadAsStringAsync();
+            ViewBag.Categories = await Categories();
 
-            ViewBag.TopRatedProducts = JsonConvert.DeserializeObject<List<TopSoldProduct>>(content);
+            ViewBag.TopRatedProducts = await TopSoldProducts();
 
             ViewBag.RecentViewsProducts = RecentViewProducts();
 
+            this.GetDefaultData();
             return View("Products");
         }        
     }
 
+        // CATGORIES
+        public async Task<IEnumerable<String>> Categories() {
+            using (var client = new HttpClient())
+            {
+                builder.Path = "/api/product/categories";
+                var response = await client.GetAsync(builder.Uri);
+                string content = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<IEnumerable<String>>(content);
+            }
+        }
+
         //TOP SOLD PRODUCTS
-        //public async Task<List<TopSoldProduct>> TopSoldProducts()
-        //{
-        //    using (var client = new HttpClient())
-        //    {
-        //        builder.Path = "/api/product/soldCount";
-        //        var response = await client.GetAsync(builder.Uri);
-        //        string content = await response.Content.ReadAsStringAsync();
-        //        return JsonConvert.DeserializeObject<List<TopSoldProduct>>(content);
-        //    }
-        //}
+        public async Task<List<TopSoldProduct>> TopSoldProducts()
+        {
+            using (var client = new HttpClient())
+            {
+                builder.Path = "/api/product/soldCount";
+                var response = await client.GetAsync(builder.Uri);
+                string content = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<List<TopSoldProduct>>(content);
+            }
+        }
 
         //RECENT VIEWS PRODUCTS
         public IEnumerable<Product> RecentViewProducts()
@@ -73,63 +82,101 @@ namespace FastStore.Controllers
     }
 
     //ADD TO CART
-    public ActionResult AddToCart(int id)
+    public async Task<ActionResult> AddToCart(int id)
     {
-      OrderDetail OD = new OrderDetail();
-      OD.ProductID = id;
-      int Qty = 1;
-      decimal price = db.Products.Find(id).UnitPrice;
-      OD.Quantity = Qty;
-      OD.UnitPrice = price;
-      OD.TotalAmount = Qty * price;
-      OD.Product = db.Products.Find(id);
+        using (var client = new HttpClient())
+        {
+            OrderDetail OD = new OrderDetail();
+            OD.ProductID = id;
+            int Qty = 1;
 
-      if (TempShpData.items == null)
-      {
-        TempShpData.items = new List<OrderDetail>();
-      }
-      TempShpData.items.Add(OD);
-      AddRecentViewProduct(id);
-      return Redirect(TempData["returnURL"].ToString());
+            builder.Path = "/api/product/";
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            query["id"] = id.ToString();
+            builder.Query = query.ToString();
+            var response = await client.GetAsync(builder.Uri);
+            string content = await response.Content.ReadAsStringAsync();
 
+            Product product = JsonConvert.DeserializeObject<Product>(content);
+            decimal price = product.UnitPrice;
+
+            OD.Quantity = Qty;
+            OD.UnitPrice = price;
+            OD.TotalAmount = Qty * price;
+
+            OD.Product = product;
+
+            if (TempShpData.items == null)
+            {
+                TempShpData.items = new List<OrderDetail>();
+            }
+            TempShpData.items.Add(OD);
+            AddRecentViewProduct(id);
+            return Redirect(TempData["returnURL"].ToString());
+        }
     }
 
     //VIEW DETAILS
-    public ActionResult ViewDetails(int id)
+    public async Task<ActionResult> ViewDetails(int id)
     {
-      var prod = db.Products.Find(id);
-      var reviews = db.Reviews.Where(x => x.ProductID == id).ToList();
-      ViewBag.Reviews = reviews;
-      ViewBag.TotalReviews = reviews.Count();
-      ViewBag.RelatedProducts = db.Products.Where(y => y.CategoryID == prod.CategoryID).ToList();
-      AddRecentViewProduct(id);
+        using (var client = new HttpClient())
+        {
+            builder.Path = "/api/product/details/";
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            query["id"] = id.ToString();
+            builder.Query = query.ToString();
+            var response = await client.GetAsync(builder.Uri);
+            string content = await response.Content.ReadAsStringAsync();
 
-      var ratedProd = db.Reviews.Where(x => x.ProductID == id).ToList();
-      int count = ratedProd.Count();
-      int TotalRate = ratedProd.Sum(x => x.Rate).GetValueOrDefault();
-      ViewBag.AvgRate = TotalRate > 0 ? TotalRate / count : 0;
+            ArrayList data = JsonConvert.DeserializeObject<ArrayList>(content);
 
-      this.GetDefaultData();
-      return View(prod);
+            Product prod = JsonConvert.DeserializeObject<Product>(data[0].ToString());
+            var reviews = prod.Reviews;
+            ViewBag.Reviews = reviews;
+            ViewBag.TotalReviews = reviews.Count();
+            var relatedProducts = JArray.FromObject(data[1]);
+            ViewBag.RelatedProducts = relatedProducts.ToObject<List<Product>>();
+            AddRecentViewProduct(id);
+
+            var ratedProd = reviews;
+            int count = ratedProd.Count();
+            int TotalRate = ratedProd.Sum(x => x.Rate).GetValueOrDefault();
+            ViewBag.AvgRate = TotalRate > 0 ? TotalRate / count : 0;
+
+            this.GetDefaultData();
+            return View(prod);
+        }
+                
     }
 
     //WISHLIST
-    public ActionResult WishList(int id)
+    public async Task<ActionResult> WishList(int id)
     {
+        using (var client = new HttpClient())
+        {
+            Wishlist wl = new Wishlist();
+            wl.ProductID = id;
+            wl.CustomerID = TempShpData.UserID;
 
-      Wishlist wl = new Wishlist();
-      wl.ProductID = id;
-      wl.CustomerID = TempShpData.UserID;
+            builder.Path = "/api/wishlist";
+            var postTask = await client.PostAsync(builder.Uri.ToString(), new StringContent(JsonConvert.SerializeObject(wl), Encoding.UTF8, "application/json"));
+            AddRecentViewProduct(id);
 
-      db.Wishlists.Add(wl);
-      db.SaveChanges();
-      AddRecentViewProduct(id);
-      ViewBag.WlItemsNo = db.Wishlists.Where(x => x.CustomerID == TempShpData.UserID).ToList().Count();
-      if (TempData["returnURL"].ToString() == "/")
-      {
-        return RedirectToAction("Index", "Home");
-      }
-      return Redirect(TempData["returnURL"].ToString());
+            builder.Path = "/api/wishlist";
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            query["customerId"] = TempShpData.UserID.ToString();
+            builder.Query = query.ToString();
+            var response = await client.GetAsync(builder.Uri);
+            string content = await response.Content.ReadAsStringAsync();
+
+            ViewBag.WlItemsNo = JsonConvert.DeserializeObject<IEnumerable<Wishlist>>(content).Count();
+            if (TempData["returnURL"].ToString() == "/")
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            return Redirect(TempData["returnURL"].ToString());
+        }
+               
     }
 
     //ADD RECENT VIEWS PRODUCT IN DB
@@ -147,30 +194,44 @@ namespace FastStore.Controllers
     }
 
     //ADD REVIEWS ABOUT PRODUCT
-    public ActionResult AddReview(int productID, FormCollection getReview)
+    public async Task<ActionResult> AddReview(int productID, FormCollection getReview)
     {
+        using (var client = new HttpClient())
+        {
+            Review r = new Review();
+            r.CustomerID = TempShpData.UserID;
+            r.ProductID = productID;
+            r.Name = getReview["name"];
+            r.Email = getReview["email"];
+            r.Review1 = getReview["message"];
+            r.Rate = Convert.ToInt32(getReview["rate"]);
+            r.DateTime = DateTime.Now;
 
-      Review r = new Review();
-      r.CustomerID = TempShpData.UserID;
-      r.ProductID = productID;
-      r.Name = getReview["name"];
-      r.Email = getReview["email"];
-      r.Review1 = getReview["message"];
-      r.Rate = Convert.ToInt32(getReview["rate"]);
-      r.DateTime = DateTime.Now;
-
-      db.Reviews.Add(r);
-      db.SaveChanges();
-      return RedirectToAction("ViewDetails/" + productID + "");
-
+            builder.Path = "/api/product/review";
+            var postTask = await client.PostAsync(builder.Uri.ToString(), new StringContent(JsonConvert.SerializeObject(r), Encoding.UTF8, "application/json"));
+            return RedirectToAction("ViewDetails/" + productID + "");
+        }   
     }
 
 
-    public ActionResult Products(int subCatID)
+    public async Task<ActionResult> Products(int subCatID)
     {
-      ViewBag.Categories = db.Categories.Select(x => x.Name).ToList();
-      var prods = db.Products.Where(y => y.SubCategoryID == subCatID).ToList();
-      return View(prods);
+        using (var client = new HttpClient())
+        {
+            ViewBag.Categories = await Categories();
+
+            builder.Path = "/api/product/subcategory";
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            query["subcategoryId"] = subCatID.ToString();
+            builder.Query = query.ToString();
+            var response = await client.GetAsync(builder.Uri);
+            string content = await response.Content.ReadAsStringAsync();
+
+            var prods = JsonConvert.DeserializeObject<IEnumerable<Product>>(content);
+
+            this.GetDefaultData();
+            return View(prods);
+        }
     }
 
     //GET PRODUCTS BY CATEGORY
@@ -178,56 +239,100 @@ namespace FastStore.Controllers
     {
         using (var client = new HttpClient())
         {
-            ViewBag.Categories = db.Categories.Select(x => x.Name).ToList();
+            ViewBag.Categories = await Categories();
 
-            // made changes here
-            builder.Path = "/api/product/soldCount";
-            var response = await client.GetAsync(builder.Uri);
-            string content = await response.Content.ReadAsStringAsync();
-            ViewBag.TopRatedProducts = JsonConvert.DeserializeObject<List<TopSoldProduct>>(content);
+            ViewBag.TopRatedProducts = await TopSoldProducts() ;
 
             ViewBag.RecentViewsProducts = RecentViewProducts();
 
-            var prods = db.Products.Where(x => x.Category.Name == categoryName).ToList();
+            builder.Path = "/api/product/category";
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            query["categoryName"] = categoryName.ToString();
+            builder.Query = query.ToString();
+            var response = await client.GetAsync(builder.Uri);
+            string content = await response.Content.ReadAsStringAsync();
+            var prods = JsonConvert.DeserializeObject<IEnumerable<Product>>(content);
+
+            this.GetDefaultData();
             return View("Products", prods.ToPagedList(page ?? 1, 9));
         }
     }
 
     //SEARCH BAR
-    public ActionResult Search(string product, int? page)
+    public async Task<ActionResult> Search(string product, int? page)
     {
-      ViewBag.Categories = db.Categories.Select(x => x.Name).ToList();
-      //ViewBag.TopRatedProducts = TopSoldProducts();
+        using (var client = new HttpClient())
+        {
+            ViewBag.Categories = await Categories();
 
-      ViewBag.RecentViewsProducts = RecentViewProducts();
+            ViewBag.TopRatedProducts = await TopSoldProducts();
 
-      List<Product> products;
-      if (!string.IsNullOrEmpty(product))
-      {
-        products = db.Products.Where(x => x.Name.StartsWith(product)).ToList();
-      }
-      else
-      {
-        products = db.Products.ToList();
-      }
-      return View("Products", products.ToPagedList(page ?? 1, 6));
+            ViewBag.RecentViewsProducts = RecentViewProducts();
+
+            List<Product> products;
+            if (!string.IsNullOrEmpty(product))
+            {
+                builder.Path = "/api/product/search";
+                var query = HttpUtility.ParseQueryString(builder.Query);
+                query["name"] = product.ToString();
+                builder.Query = query.ToString();
+                var response = await client.GetAsync(builder.Uri);
+                string content = await response.Content.ReadAsStringAsync();
+
+                products = JsonConvert.DeserializeObject<IEnumerable<Product>>(content).ToList();
+                }
+            else
+            {
+                builder.Path = "/api/product/";
+                var response = await client.GetAsync(builder.Uri);
+                string content = await response.Content.ReadAsStringAsync();
+                
+                products = JsonConvert.DeserializeObject<IEnumerable<Product>>(content).ToList();
+            }
+
+            this.GetDefaultData();
+            return View("Products", products.ToPagedList(page ?? 1, 6));
+        } 
     }
 
-    public JsonResult GetProducts(string term)
+    public async Task<JsonResult> GetProducts(string term)
     {
-      List<string> prodNames = db.Products.Where(x => x.Name.StartsWith(term)).Select(y => y.Name).ToList();
-      return Json(prodNames, JsonRequestBehavior.AllowGet);
-
+        using (var client = new HttpClient())
+        {
+            builder.Path = "/api/product/search";
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            query["prefix"] = term.ToString();
+            builder.Query = query.ToString();
+            var response = await client.GetAsync(builder.Uri);
+            string content = await response.Content.ReadAsStringAsync();
+            List<string> prodNames = JsonConvert.DeserializeObject<IEnumerable<String>>(content).ToList();
+            return Json(prodNames, JsonRequestBehavior.AllowGet);
+        }
+                
     }
-    public ActionResult FilterByPrice(int minPrice, int maxPrice, int? page)
+    public async Task<ActionResult> FilterByPrice(int minPrice, int maxPrice, int? page)
     {
-      ViewBag.Categories = db.Categories.Select(x => x.Name).ToList();
-      //ViewBag.TopRatedProducts = TopSoldProducts();
+        using (var client = new HttpClient())
+        {
+            ViewBag.Categories = await Categories();
+            ViewBag.TopRatedProducts = await TopSoldProducts();
 
-      ViewBag.RecentViewsProducts = RecentViewProducts();
-      ViewBag.filterByPrice = true;
-      var filterProducts = db.Products.Where(x => x.UnitPrice >= minPrice && x.UnitPrice <= maxPrice).ToList();
-      return View("Products", filterProducts.ToPagedList(page ?? 1, 9));
+            ViewBag.RecentViewsProducts = RecentViewProducts();
+            ViewBag.filterByPrice = true;
+
+            builder.Path = "/api/product/filter";
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            query["minPrice"] = minPrice.ToString();
+            query["maxPrice"] = maxPrice.ToString();
+            builder.Query = query.ToString();
+            var response = await client.GetAsync(builder.Uri);
+            string content = await response.Content.ReadAsStringAsync();
+
+            var filterProducts = JsonConvert.DeserializeObject<IEnumerable<Product>>(content).ToList();
+
+            this.GetDefaultData();
+            return View("Products", filterProducts.ToPagedList(page ?? 1, 9));
+        }   
     }
 
 
