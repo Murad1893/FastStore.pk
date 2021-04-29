@@ -31,11 +31,28 @@ namespace FastStoreWebAPI.Controllers
         }
 
         [HttpGet]
+        public Wishlist GetWishList(int id)
+        {
+            using (EcommerceEntities entities = new EcommerceEntities())
+            {
+                Wishlist w = entities.Wishlists.Find(id);
+                w.Product = entities.Products.Find(w.ProductID);
+
+                return w;
+            }
+        }
+
+        [HttpGet]
         public IEnumerable<Wishlist> GetCustomerWishList(int customerId)
         {
             using (EcommerceEntities entities = new EcommerceEntities())
             {
-                return entities.Wishlists.Where(x => x.CustomerID == customerId).ToList();
+                IEnumerable<Wishlist> entity = entities.Wishlists.Where(x => x.CustomerID == customerId).ToList();
+                foreach (Wishlist item in entity) {
+                    item.Product = entities.Products.Find(item.ProductID);
+                }
+
+                return entity;
             }
         }
 

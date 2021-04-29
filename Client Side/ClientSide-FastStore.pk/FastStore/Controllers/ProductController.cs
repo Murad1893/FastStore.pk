@@ -32,7 +32,7 @@ namespace FastStore.Controllers
 
             ViewBag.RecentViewsProducts = RecentViewProducts();
 
-            this.GetDefaultData();
+            await this.GetDefaultData();
             return View("Products");
         }        
     }
@@ -41,7 +41,7 @@ namespace FastStore.Controllers
         public async Task<IEnumerable<String>> Categories() {
             using (var client = new HttpClient())
             {
-                builder.Path = "/api/product/categories";
+                builder.Path = "/api/product/categoryNames";
                 var response = await client.GetAsync(builder.Uri);
                 string content = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<IEnumerable<String>>(content);
@@ -143,7 +143,13 @@ namespace FastStore.Controllers
             int TotalRate = ratedProd.Sum(x => x.Rate).GetValueOrDefault();
             ViewBag.AvgRate = TotalRate > 0 ? TotalRate / count : 0;
 
-            this.GetDefaultData();
+            await this.GetDefaultData();
+
+            builder.Path = "api/product/categories";
+            response = await client.GetAsync(builder.Uri);
+            content = await response.Content.ReadAsStringAsync();
+            ViewBag.AllCategories = JsonConvert.DeserializeObject<IEnumerable<Category>>(content);
+
             return View(prod);
         }
                 
@@ -229,7 +235,7 @@ namespace FastStore.Controllers
 
             var prods = JsonConvert.DeserializeObject<IEnumerable<Product>>(content);
 
-            this.GetDefaultData();
+            await this.GetDefaultData();
             return View(prods);
         }
     }
@@ -253,8 +259,14 @@ namespace FastStore.Controllers
             string content = await response.Content.ReadAsStringAsync();
             var prods = JsonConvert.DeserializeObject<IEnumerable<Product>>(content);
 
-            this.GetDefaultData();
-            return View("Products", prods.ToPagedList(page ?? 1, 9));
+            await this.GetDefaultData();
+
+            builder.Path = "api/product/categories";
+            response = await client.GetAsync(builder.Uri);
+            content = await response.Content.ReadAsStringAsync();
+            ViewBag.AllCategories = JsonConvert.DeserializeObject<IEnumerable<Category>>(content);
+
+            return View("Products", prods.ToPagedList(page ?? 1, 6));
         }
     }
 
@@ -268,6 +280,7 @@ namespace FastStore.Controllers
             ViewBag.TopRatedProducts = await TopSoldProducts();
 
             ViewBag.RecentViewsProducts = RecentViewProducts();
+            ViewBag.inSearch = true;
 
             List<Product> products;
             if (!string.IsNullOrEmpty(product))
@@ -290,7 +303,13 @@ namespace FastStore.Controllers
                 products = JsonConvert.DeserializeObject<IEnumerable<Product>>(content).ToList();
             }
 
-            this.GetDefaultData();
+            await this.GetDefaultData();
+
+            builder.Path = "api/product/categories";
+            var response1 = await client.GetAsync(builder.Uri);
+            string content1 = await response1.Content.ReadAsStringAsync();
+            ViewBag.AllCategories = JsonConvert.DeserializeObject<IEnumerable<Category>>(content1);
+
             return View("Products", products.ToPagedList(page ?? 1, 6));
         } 
     }
@@ -330,8 +349,14 @@ namespace FastStore.Controllers
 
             var filterProducts = JsonConvert.DeserializeObject<IEnumerable<Product>>(content).ToList();
 
-            this.GetDefaultData();
-            return View("Products", filterProducts.ToPagedList(page ?? 1, 9));
+            await this.GetDefaultData();
+
+            builder.Path = "api/product/categories";
+            response = await client.GetAsync(builder.Uri);
+            content = await response.Content.ReadAsStringAsync();
+            ViewBag.AllCategories = JsonConvert.DeserializeObject<IEnumerable<Category>>(content);
+
+            return View("Products", filterProducts.ToPagedList(page ?? 1, 6));
         }   
     }
 

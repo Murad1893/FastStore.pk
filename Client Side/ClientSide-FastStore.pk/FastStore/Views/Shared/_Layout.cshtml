@@ -180,21 +180,20 @@
                         <ul class="nav navbar-nav">
                             <li><a href="@Url.Action("Index","Home")">Home</a></li>
                             @{
-
-                                FastStore.Models.FastStoreEntities db = new FastStore.Models.FastStoreEntities();
                                 Dictionary<string, IEnumerable<string>> navbar = new Dictionary<string, IEnumerable<string>>();
-
-                                List<FastStore.Models.Category> Categories = db.Categories.ToList();
+                                List<FastStore.Models.Category> Categories;
+                                Categories = ViewBag.AllCategories;
+                                
                                 foreach (FastStore.Models.Category cat in Categories)
                                 {
-                                    IEnumerable<string> subCat = db.SubCategories.Where(x => x.CategoryID == cat.CategoryID).Select(x => x.Name).ToList();
+                                    IEnumerable<string> subCat = cat.SubCategories.Select(x => x.Name).ToList();
                                     navbar.Add(cat.Name, subCat);
                                 }
                                 int count=0;
                                 foreach (KeyValuePair<string,IEnumerable<string>> nav in navbar)
                                 {
                                     if (count < 8)
-                                    {                               
+                                    {
                                     <li>
                                         <a href="">@nav.Key<span class="caret"></span></a> 
                                         <ul class="dropdown-menu">

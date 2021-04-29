@@ -22,12 +22,17 @@ namespace FastStore.Controllers
         {
             using (var client = new HttpClient())
             {
+                builder.Path = "api/product/categories";
+                var response = await client.GetAsync(builder.Uri);
+                string content = await response.Content.ReadAsStringAsync();
+                ViewBag.AllCategories = JsonConvert.DeserializeObject<IEnumerable<Category>>(content);
+
                 builder.Path = "/api/product/category";
                 var query = HttpUtility.ParseQueryString(builder.Query);
                 query["categoryName"] = "Men";
                 builder.Query = query.ToString();
-                var response = await client.GetAsync(builder.Uri);
-                string content = await response.Content.ReadAsStringAsync();
+                response = await client.GetAsync(builder.Uri);
+                content = await response.Content.ReadAsStringAsync();
                 ViewBag.MenProduct = JsonConvert.DeserializeObject<IEnumerable<Product>>(content);
 
                 builder.Path = "/api/product/category";
@@ -61,7 +66,7 @@ namespace FastStore.Controllers
                 
                 ViewBag.PromoRight = db.genPromoRights.ToList();
 
-                this.GetDefaultData();
+                await this.GetDefaultData();
                 return View();
             }
 

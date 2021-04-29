@@ -5,69 +5,114 @@ using System.Web;
 using System.Web.Mvc;
 using FastStore.Models;
 using System.Data;
+using System.Configuration;
+using System.Threading.Tasks;
+using System.Net.Http;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace FastStore.Controllers
 {
     public class AccountController : Controller
     {
+        UriBuilder builder = new UriBuilder(ConfigurationManager.AppSettings["url"]);
         FastStoreEntities db = new FastStoreEntities();
 
         // GET: Account
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            this.GetDefaultData();
+            await this.GetDefaultData();
 
-            var usr = db.Customers.Find(TempShpData.UserID);
-            return View(usr);
+            using (var client = new HttpClient())
+            {
 
+                builder.Path = "/api/customers/";
+                var query = HttpUtility.ParseQueryString(builder.Query);
+                query["id"] = TempShpData.UserID.ToString();
+                builder.Query = query.ToString();
+                var response  = await client.GetAsync(builder.Uri);
+                string content  = await response.Content.ReadAsStringAsync();
+
+                var usr = JsonConvert.DeserializeObject<Customer>(content);
+
+                builder.Path = "api/product/categories";
+                response = await client.GetAsync(builder.Uri);
+                content = await response.Content.ReadAsStringAsync();
+                ViewBag.AllCategories = JsonConvert.DeserializeObject<IEnumerable<Category>>(content);
+
+                return View(usr);
+            }
         }
 
 
         //REGISTER CUSTOMER
         [HttpPost]
-        public ActionResult Register(Customer cust)
+        public async Task<ActionResult> Register(Customer cust)
         {
-            if (ModelState.IsValid)
+            using (var client = new HttpClient())
             {
-                db.Customers.Add(cust);
-                db.SaveChanges();
-
-                Session["username"] = cust.UserName;
-                TempShpData.UserID = GetUser(cust.UserName).CustomerID;          
-                return RedirectToAction("Index","Home");
-            }
-            return View();
-        }
-
-       
-       
-        //LOG IN
-        public ActionResult Login()
-        {
-            return View();
-        }
-
-         [HttpPost]
-        public ActionResult Login(FormCollection formColl)
-        {
-            string usrName = formColl["UserName"];
-            string Pass = formColl["Password"];
-
-            if (ModelState.IsValid)
-            {
-                var cust = (from m in db.Customers
-                            where (m.UserName == usrName && m.Password == Pass)
-                            select m).SingleOrDefault();
-
-                if (cust !=null )
+                if (ModelState.IsValid)
                 {
-                    TempShpData.UserID = cust.CustomerID;
+                    builder.Path = "/api/customers";
+                    var postTask = await client.PostAsync(builder.Uri.ToString(), new StringContent(JsonConvert.SerializeObject(cust), Encoding.UTF8, "application/json"));
+                    
                     Session["username"] = cust.UserName;
+                    Customer customerEntity = await GetUser(cust.UserName);
+                    TempShpData.UserID = customerEntity.CustomerID;
                     return RedirectToAction("Index", "Home");
                 }
-                      
+
+                return View();
             }
-            return View();
+                
+        }
+
+        //LOG IN
+        public async Task<ActionResult> Login()
+        {
+            using (var client = new HttpClient())
+            {
+                builder.Path = "api/product/categories";
+                var response = await client.GetAsync(builder.Uri);
+                string content = await response.Content.ReadAsStringAsync();
+                ViewBag.AllCategories = JsonConvert.DeserializeObject<IEnumerable<Category>>(content);
+
+                return View();
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Login(FormCollection formColl)
+        {
+            using (var client = new HttpClient())
+            {
+                string usrName = formColl["UserName"];
+                string Pass = formColl["Password"];
+
+                if (ModelState.IsValid)
+                {
+                    builder.Path = "/api/customers/";
+                    var query = HttpUtility.ParseQueryString(builder.Query);
+                    query["username"] = usrName;
+                    query["password"] = Pass;
+                    builder.Query = query.ToString();
+                    var response = await client.GetAsync(builder.Uri);
+                    string content = await response.Content.ReadAsStringAsync();
+
+                    var cust = JsonConvert.DeserializeObject<Customer>(content);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        TempShpData.UserID = cust.CustomerID;
+                        Session["username"] = cust.UserName;
+                        return RedirectToAction("Index", "Home");
+                    }
+
+                }
+
+
+                return View();
+            }
         }
 
         //LOG OUT
@@ -81,26 +126,41 @@ namespace FastStore.Controllers
 
        
 
-        public Customer GetUser(string _usrName)
+        public async Task<Customer> GetUser(string _usrName)
         {
-            var cust = (from c in db.Customers
-                        where c.UserName == _usrName
-                        select c).FirstOrDefault();
-            return cust;
+            using (var client = new HttpClient())
+            {
+                builder.Path = "/api/customers/";
+                var query = HttpUtility.ParseQueryString(builder.Query);
+                query["username"] = _usrName;
+                builder.Query = query.ToString();
+                var response = await client.GetAsync(builder.Uri);
+                string content = await response.Content.ReadAsStringAsync();
+
+                var cust = JsonConvert.DeserializeObject<Customer>(content);
+
+                return cust;
+            }
         }
 
         //UPDATE CUSTOMER DATA
         [HttpPost]
-        public ActionResult Update(Customer cust)
+        public async Task<ActionResult> Update(Customer cust)
         {
-            if (ModelState.IsValid)
+            using (var client = new HttpClient())
             {
-                db.Entry(cust).State = EntityState.Modified;
-                db.SaveChanges();
-                Session["username"] = cust.UserName;
-                return RedirectToAction("Index", "Home");
+                if (ModelState.IsValid)
+                {
+                    builder.Path = "/api/customers/";
+                    var putTask = await client.PutAsync(builder.Uri.ToString(), new StringContent(JsonConvert.SerializeObject(cust), Encoding.UTF8, "application/json"));
+
+                    Session["username"] = cust.UserName;
+
+                    return RedirectToAction("Index", "Home");
+                }
+
+                return View();
             }
-            return View();
         }
     }
 }

@@ -40,32 +40,33 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @if (Session["username"]!=null)
-                                        {                              
-                                            foreach (var item in Model)
-                                            {                                   
-                                        
-                                            <tr>
-                                                <td><a class="remove" href="@Url.Action("Remove", "WishList", new { id=item.WishlistID})"><fa class="fa fa-close"></fa></a></td>
-                                                <td><a href="#"><img src="@item.Product.ImageURL" alt="@item.Product.AltText"></a></td>
-                                                <td><a class="aa-cart-title" href="#">@item.Product.Name</a></td>
-                                                <td>@item.Product.UnitPrice</td>
-                                                <td>
-                                                    @if (item.Product.UnitInStock > 0)
-                                                    {
-                                                        <text>In Stock (@item.Product.UnitInStock)</text>
-                                                    }
-                                                    else
-                                                    { <text>Out of Stock (@item.Product.UnitInStock)</text>}
-                                                </td>
-                                                <td><a href="@Url.Action("AddToCart", "WishList", new { id=item.WishlistID})" class="aa-add-to-cart-btn">Add To Cart</a></td>
-                                            </tr>                                       
-                                            }
-                                        }
-                                        else
+                                        @if (Session["username"] != null)
                                         {
-                                            <text>Please login to view wishlist</text> 
-                                        }
+                                            foreach (var item in Model)
+                                            {
+                                                System.Diagnostics.Debug.WriteLine("here");
+                                                    <tr>
+                                                        <td><a class="remove" href="@Url.Action("Remove", "WishList", new { id=item.WishlistID})"><fa class="fa fa-close"></fa></a></td>
+                                                        <td><a href="#"><img src="@item.Product.ImageURL" alt="@item.Product.AltText"></a></td>
+                                                        <td><a class="aa-cart-title" href="#">@item.Product.Name</a></td>
+                                                        <td>@item.Product.UnitPrice</td>
+                                                        <td>
+                                                            @if (item.Product.UnitInStock > 0)
+                                                {
+                                                                <text>In Stock (@item.Product.UnitInStock)</text>
+                                                            }
+                                                            else
+                                                            { <text>Out of Stock (@item.Product.UnitInStock)</text>}
+                                                        </td>
+                                                        <td><a href="@Url.Action("AddToCart", "WishList", new { id=item.WishlistID})" class="aa-add-to-cart-btn">Add To Cart</a></td>
+                                                    </tr>
+
+                                                }
+                                            }
+                                            else
+                                        {
+                                                <text>Please login to view wishlist</text>
+                                            }
                                     </tbody>
                                 </table>
                             </div>

@@ -1,6 +1,8 @@
 ﻿using FastStoreWebAPI.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -13,40 +15,61 @@ namespace FastStoreWebAPI.Controllers
     {
         [Route("paymentTypes")]
         [HttpGet]
-        public dynamic GetPaymentTypes()
+        public IEnumerable<PaymentType> GetPaymentTypes()
         {
             using (EcommerceEntities entities = new EcommerceEntities())
             {
-                return entities.PaymentTypes.Select(p => new { p.PayTypeID, p.TypeName }).ToList();
+                return entities.PaymentTypes.ToList();
             }
         }
 
         [Route("nextShippingID")]
         [HttpGet]
-        public int GetNextShippingID() {
+        public HttpResponseMessage GetNextShippingID() {
             using (EcommerceEntities entities = new EcommerceEntities())
             {
-                return entities.ShippingDetails.Max(x => x.ShippingID) + 1;
+                if (entities.ShippingDetails.Count() > 0)
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, entities.ShippingDetails.Max(x => x.ShippingID) + 1);
+                }
+                else {
+                    return Request.CreateErrorResponse(HttpStatusCode.NoContent, "No shipping entries found");
+                }
+                
             }
         }
 
         [Route("nextPaymentID")]
         [HttpGet]
-        public int GetNextPaymentID()
+        public HttpResponseMessage GetNextPaymentID()
         {
             using (EcommerceEntities entities = new EcommerceEntities())
             {
-                return entities.Payments.Max(x => x.PaymentID) + 1;
+                if (entities.Payments.Count() > 0)
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, entities.Payments.Max(x => x.PaymentID) + 1);
+                }
+                else
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.NoContent, "No payment entries found");
+                }
             }
         }
 
         [Route("nextOrderID")]
         [HttpGet]
-        public int GetNextOrderID()
+        public HttpResponseMessage GetNextOrderID()
         {
             using (EcommerceEntities entities = new EcommerceEntities())
             {
-                return entities.Orders.Max(x => x.OrderID) + 1;
+                if (entities.Orders.Count() > 0)
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, entities.Orders.Max(x => x.OrderID) + 1);
+                }
+                else
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.NoContent, "No order entries found");
+                }
             }
         }
 
@@ -130,11 +153,11 @@ namespace FastStoreWebAPI.Controllers
 
         [Route("~/api/orders")]
         [HttpGet]
-        public IEnumerable<Order> GetOrder(int orderID)
+        public Order GetOrder(int orderID)
         {
             using (EcommerceEntities entities = new EcommerceEntities())
             {
-                return entities.Orders.Where(x => x.OrderID == orderID).ToList();
+                return entities.Orders.Find(orderID);
             }
         }
 

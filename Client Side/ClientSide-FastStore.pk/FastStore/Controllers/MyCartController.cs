@@ -1,24 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using FastStore.Models;
-
+using System.Net.Http;
+using Newtonsoft.Json;
+using System.Configuration;
 
 namespace FastStore.Controllers
 {
     public class MyCartController : Controller
     {
         FastStoreEntities db = new FastStoreEntities();
-
+        UriBuilder builder = new UriBuilder(ConfigurationManager.AppSettings["url"]);
         // GET: MyCart
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-             var data=this.GetDefaultData();
+            using (var client = new HttpClient())
+            {
+                var data = await this.GetDefaultData();
 
-            return View(data);
-            
+                builder.Path = "api/product/categories";
+                var response = await client.GetAsync(builder.Uri);
+                string content = await response.Content.ReadAsStringAsync();
+                ViewBag.AllCategories = JsonConvert.DeserializeObject<IEnumerable<Category>>(content);
+                return View(data);
+            }
         }
 
         public ActionResult Remove(int id)

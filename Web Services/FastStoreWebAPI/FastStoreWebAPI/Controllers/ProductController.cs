@@ -13,13 +13,28 @@ namespace FastStoreWebAPI.Controllers
     [RoutePrefix("api/product")]
     public class ProductController : ApiController
     {
-        [Route("categories")]
+        [Route("categoryNames")]
         [HttpGet]
         public IEnumerable<String> GetCategoryNames()
         {
             using (EcommerceEntities entities = new EcommerceEntities())
             {
                 return entities.Categories.Select(x => x.Name).ToList();
+            }
+        }
+
+        [Route("categories")]
+        [HttpGet]
+        public IEnumerable<Category> GetCategory()
+        {
+            using (EcommerceEntities entities = new EcommerceEntities())
+            {
+                IEnumerable<Category> entity = entities.Categories.ToList();
+                foreach (Category item in entity) {
+                    item.SubCategories = entities.SubCategories.Where(x => x.CategoryID == item.CategoryID).ToList();
+                }
+
+                return entity;
             }
         }
 

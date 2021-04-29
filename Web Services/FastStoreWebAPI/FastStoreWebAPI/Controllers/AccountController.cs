@@ -41,6 +41,25 @@ namespace FastStoreWebAPI.Controllers
             }
         }
 
+        [Route("~/api/customers")]
+        [HttpGet]
+        public HttpResponseMessage Login(string username, string password)
+        {
+            using (EcommerceEntities entities = new EcommerceEntities())
+            {
+                var entity = entities.Customers.SingleOrDefault(e => e.UserName == username && e.Password == password);
+
+                if (entity != null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, entity);
+                }
+                else
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Login unsuccessful");
+                }
+            }
+        }
+
         // GET Specific Customer: account/:username 
         [Route("~/api/customers")]
         [HttpGet]
@@ -92,7 +111,7 @@ namespace FastStoreWebAPI.Controllers
         // Updating customer details : account/?id
         [Route("~/api/customers")]
         [HttpPut]
-        public HttpResponseMessage UpdateCustomer(int id, [FromBody] Customer customer) {
+        public HttpResponseMessage UpdateCustomer([FromBody] Customer customer) {
             using (EcommerceEntities entities = new EcommerceEntities())
             {
                 try
