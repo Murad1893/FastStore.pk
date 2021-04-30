@@ -219,7 +219,7 @@
         </div>
     </div>
 </div>
-@using (Html.BeginForm("Delete", "Product", new { id = @Model.ProductID }, FormMethod.Post))
+@using (Html.BeginForm("DeleteConfirmed", "Product", new { id = @Model.ProductID }, FormMethod.Post))
 {
     @Html.AntiForgeryToken()
 
