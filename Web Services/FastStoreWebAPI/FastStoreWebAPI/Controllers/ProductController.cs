@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -57,6 +58,24 @@ namespace FastStoreWebAPI.Controllers
             using (EcommerceEntities entities = new EcommerceEntities())
             {
                 return entities.Products.ToList();
+            }
+        }
+        [Route("adminProducts")]
+        [HttpGet]
+        public IEnumerable<Product> GetAllAdminProducts()
+        {
+            using (EcommerceEntities entities = new EcommerceEntities())
+            {
+                var prodlist = entities.Products.ToList();
+                foreach (Product p in prodlist)
+                {
+                   
+                    p.Supplier = entities.Suppliers.Find(p.SupplierID);
+                    p.SubCategory = entities.SubCategories.Find(p.SubCategoryID);
+                   
+
+                }
+                return prodlist;
             }
         }
 
@@ -120,6 +139,133 @@ namespace FastStoreWebAPI.Controllers
                 }
             }
         }
+
+        [Route("admindetails")]
+        [HttpGet]
+        public HttpResponseMessage GetAdminProductsDetails(int id)
+        {
+            try
+            {
+
+                using (EcommerceEntities entities = new EcommerceEntities())
+                {
+
+                    Product product = entities.Products.Find(id);
+                    ArrayList data = new ArrayList();
+                    return Request.CreateResponse(HttpStatusCode.OK, product);
+                }
+            }
+            catch (Exception e)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, e);
+            }
+           
+        
+        }
+        [Route("createProduct")]
+        [HttpPost]
+        public HttpResponseMessage Addproductadmin([FromBody] Product prod)
+        {
+            try
+            {  
+                using (EcommerceEntities entities = new EcommerceEntities())
+                {
+                    entities.Products.Add(prod);
+                    entities.SaveChanges();
+
+                    return Request.CreateResponse(HttpStatusCode.OK, "Product added.");
+                }
+            }
+            catch (Exception e)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, e);
+            }
+        }
+
+        [Route("editProduct")]
+        [HttpPut]
+        public HttpResponseMessage editProduct([FromBody] Product prod)
+        {
+            try
+            {
+                using (EcommerceEntities entities = new EcommerceEntities())
+                {
+                    entities.Entry(prod).State = EntityState.Modified;
+                    entities.SaveChanges();
+
+
+
+                    return Request.CreateResponse(HttpStatusCode.OK, "Product Updated.");
+                }
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException e)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Please enter all non-nullable fields for update validation");
+            }
+            catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException e)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Product id is null or is not present in database");
+            }
+        }
+
+
+        [Route("adminProducts")]
+        [HttpGet]
+
+        public HttpResponseMessage getAdminProducts(int Id)
+        {
+            try
+            {
+                using (EcommerceEntities entities = new EcommerceEntities())
+                {
+                    Product product = entities.Products.Find(Id);
+                    return Request.CreateResponse(HttpStatusCode.OK, product);
+                }
+            }
+            catch {
+
+                return Request.CreateErrorResponse(HttpStatusCode.NotFound, String.Format("Product with id = {0} not present", Id));
+            }
+          
+
+        }
+
+        [Route("delete")]
+        [HttpDelete]
+
+        public HttpResponseMessage deleteProducts(int Id)
+        {
+            try
+            {
+                using (EcommerceEntities entities = new EcommerceEntities())
+                {
+                    // check if item present
+                    var entity = entities.Products.Find(Id);
+
+                    if (entity != null)
+                    {
+                        entities.Products.Remove(entity);
+                        entities.SaveChanges();
+
+                        return Request.CreateResponse(HttpStatusCode.OK, "Item removed ");
+                    }
+                    else
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Item not present ");
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, e);
+            }
+
+
+        }
+
+
+
 
         [Route("review")]
         [HttpPost]
